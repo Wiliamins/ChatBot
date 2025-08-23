@@ -1,78 +1,93 @@
-# qdrant_utils.py
-# ------------------------------------------------------------
-# Junior (PL): Klient Qdrant przez URL + API KEY (REST).
-#  - tworzę kolekcję jeśli nie istnieje
-#  - upsert punktów
-#  - wipe_source: kasuję wszystkie punkty danego źródła
-#  - fetch_all: pobieram wszystkie punkty spełniające filtr (do exact-match po kluczu)
-# ------------------------------------------------------------
-
 import os
-from typing import List, Optional, Union
+from time import time
 from qdrant_client import QdrantClient
-from qdrant_client.http.models import Distance, VectorParams, Filter, FieldCondition, MatchValue, PointIdsList
+from qdrant_client.http.models import Distance, VectorParams
+from qdrant_client.models import (
+    Filter, FieldCondition, MatchValue, PayloadSchemaType
+)
 
-COLLECTION = os.getenv("QDRANT_COLLECTION", "documents")
+EMBED_DIM = 384
+
+COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "documents")
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
+
 
 class QdrantManager:
-    def __init__(self, collection_name: Optional[str] = None):
-        url = os.getenv("QDRANT_URL")
-        api_key = os.getenv("QDRANT_API_KEY")
-        if not url or not api_key:
-            raise RuntimeError("Brak QDRANT_URL lub QDRANT_API_KEY w środowisku (.env)")
-
-        self.client = QdrantClient(url=url, api_key=api_key, prefer_grpc=False, timeout=10.0)
-        self.collection_name = collection_name or COLLECTION
+    def __init__(self, collection_name: str = COLLECTION_NAME):
+        self.collection_name = collection_name
+        self.client = QdrantClient(
+            url=QDRANT_URL,
+            api_key=QDRANT_API_KEY,
+            timeout=30.0,
+        )
         self._ensure_collection()
+        self._ensure_payload_indices()  # индексы для q_norm и др.
 
     def _ensure_collection(self):
+        # Создаём коллекцию, если её нет. НИЧЕГО не удаляем.
         try:
             self.client.get_collection(self.collection_name)
         except Exception:
             self.client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+                vectors_config=VectorParams(size=EMBED_DIM, distance=Distance.COSINE),
             )
 
-    def insert_vector(self, point_id: Union[str, int], vector: List[float], payload: dict):
+    def _ensure_payload_indices(self):
+        index_specs = [
+            ("q_norm", PayloadSchemaType.KEYWORD),
+            ("source", PayloadSchemaType.KEYWORD),
+            ("source_type", PayloadSchemaType.KEYWORD),
+            ("file_type", PayloadSchemaType.KEYWORD),
+            ("seq", PayloadSchemaType.INTEGER),
+            ("ingested_at", PayloadSchemaType.INTEGER),
+        ]
+        for field_name, schema in index_specs:
+            try:
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name=field_name,
+                    field_schema=schema,
+                )
+            except Exception as e:
+                msg = str(e).lower()
+                if "already exists" in msg or "exists" in msg:
+                    continue
+                print(f"[Qdrant] Index create warning for '{field_name}': {e}")
+
+    def insert_vector(self, point_id: str, vector, payload: dict):
+        # добавляем timestamp (секунды) — достаточно для стабильной версии
+        payload = dict(payload)
+        payload.setdefault("ingested_at", int(time()))
         self.client.upsert(
             collection_name=self.collection_name,
-            points=[{"id": point_id, "vector": vector, "payload": payload}],
+            points=[{
+                "id": point_id,
+                "vector": vector,
+                "payload": payload,
+            }]
         )
 
-    def search_vectors(self, query_vector: List[float], limit: int = 10, query_filter=None):
+    def search_exact_key(self, q_norm_value: str, source_filter: str | None = None, limit: int = 1):
+        """Точный поиск по q_norm (+ опционально по конкретному source)."""
+        must = [FieldCondition(key="q_norm", match=MatchValue(value=q_norm_value))]
+        if source_filter:
+            must.append(FieldCondition(key="source", match=MatchValue(value=source_filter)))
+        flt = Filter(must=must)
+        points, _ = self.client.scroll(
+            collection_name=self.collection_name,
+            scroll_filter=flt,
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+        return points
+
+    def semantic_search(self, query_vector, limit: int = 3):
         return self.client.search(
             collection_name=self.collection_name,
             query_vector=query_vector,
             limit=limit,
             with_payload=True,
-            query_filter=query_filter,
         )
-
-    def wipe_source(self, source: str) -> int:
-        ids = []
-        next_page = None
-        flt = Filter(must=[FieldCondition(key="source", match=MatchValue(value=source))])
-        while True:
-            recs, next_page = self.client.scroll(
-                self.collection_name, limit=256, with_payload=False, scroll_filter=flt, offset=next_page
-            )
-            ids.extend([r.id for r in recs])
-            if next_page is None:
-                break
-        if ids:
-            self.client.delete(self.collection_name, points_selector=PointIdsList(points=ids))
-        return len(ids)
-
-    def fetch_all(self, query_filter: Filter, page_limit: int = 256):
-        """Junior (PL): pobieram WSZYSTKIE rekordy spełniające filtr (payloady)."""
-        items = []
-        next_page = None
-        while True:
-            recs, next_page = self.client.scroll(
-                self.collection_name, limit=page_limit, with_payload=True, scroll_filter=query_filter, offset=next_page
-            )
-            items.extend(recs)
-            if next_page is None:
-                break
-        return items

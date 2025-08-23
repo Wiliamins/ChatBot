@@ -1,0 +1,47 @@
+file: test_chatbott.csv
+name → ChatPilot
+
+project codename → ChatPilot
+
+delivery date / date / deadline → 2025-11-30
+
+office / office city / city → Warsaw
+
+headcount / team size → 3
+
+ceo? → Viliam
+
+file: test_chatbot/txt
+project name → Mark2
+
+delivery date / date → 2025-10-10
+
+office / office city → Warsaw
+
+file: test_chatbot.doxc
+developer → Viliamin Stepushenkov
+
+project → ChatBot
+
+main stack → Python, FastAPI, React
+
+file: testchatbot_PDF
+name / project codename → ChatPilot
+
+delivery date / date / deadline → 2026-02-15
+
+office / office city / city → Gdańsk
+
+headcount / team size → 6
+
+ceo? → Martin Nowak
+
+support hours / working hours → Mon–Sat 08:00–20:00 CET
+
+contact email? / email → support@chatpilot.dev
+
+what's the sla? / sla → 12 hours
+
+tech stack / stack → React, FastAPI, Qdrant, Sentence-Transformers
+
+overview /  Overview

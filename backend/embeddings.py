@@ -1,20 +1,13 @@
-# embeddings.py
-# ------------------------------------------------------------
-# Junior (PL): prosty wrapper na Sentence-Transformers:
-#  - model all-MiniLM-L6-v2 (384D, szybki)
-#  - zwracam listę floatów (Qdrant tak lubi)
-# ------------------------------------------------------------
 from sentence_transformers import SentenceTransformer
 
-_model = None
-
-def _get_model():
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-    return _model
+# Загружаем одну модель на процесс
+_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 def generate_embedding(text: str):
-    model = _get_model()
-    vec = model.encode([text], normalize_embeddings=True)[0]
+    """
+    Возвращает список float длиной 384 для строки text.
+    """
+    if not text:
+        text = ""
+    vec = _model.encode([text], normalize_embeddings=True)[0]
     return vec.tolist()
