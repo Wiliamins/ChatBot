@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Ustawiam kodowanie znaków na UTF-8, żeby polskie znaki działały -->
+    <meta charset="utf-8" />
+
+    <!-- Ikonka strony w zakładce przeglądarki -->
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Meta dla responsywności na telefonach -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Kolor motywu (niektóre przeglądarki używają) -->
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Krótki opis aplikacji dla SEO i podglądów -->
+    <meta name="description" content="ChatBot demo" />
+
+    <!-- Tutaj ładuję font Inter z Google Fonts, bo fajnie wygląda -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Manifest Progressive Web App (plik obok w public/manifest.json) -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Tytuł strony w przeglądarce -->
+    <title>ChatBot</title>
+  </head>
+  <body>
+    <!-- Komunikat dla użytkowników bez włączonego JS -->
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+    <!-- Główny korzeń, tutaj React montuje aplikację -->
+    <div id="root"></div>
+  </body>
+</html>

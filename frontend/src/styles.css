@@ -1,0 +1,200 @@
+/* Zmienne kolorów i wyglądu aplikacji */
+:root{
+  --bg:#0f172a;          /* tło strony */
+  --panel:#0b1220;       /* tło panelu czatu */
+  --accent:#2563eb;      /* główny niebieski */
+  --accent-2:#1e40af;    /* ciemniejszy niebieski do gradientu */
+  --text:#e5e7eb;        /* kolor tekstu */
+  --muted:#94a3b8;       /* przygaszony tekst (np. opisy) */
+  --bot-bubble:#1f2937;  /* bąbelek bota */
+  --user-bubble:#2563eb; /* bąbelek użytkownika */
+}
+
+/* Reset pudełkowania i bazowe rozmiary */
+*{ box-sizing:border-box; }
+html,body,#root{ height:100%; }
+
+/* Tło strony i font (Inter) */
+body{
+  margin:0;
+  background: radial-gradient(1200px 800px at 80% 10%, #1e293b 0%, #0b1020 50%, #070b16 100%);
+  color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+/*ayout strony (nagłówek + main) */
+.page{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.header{
+  text-align:center;        /* środkowanie nagłówka */
+  padding:32px 12px 16px;
+}
+.header h1{ margin:0; font-size:28px; font-weight:600; }
+.header .sub{ margin:6px 0 0; opacity:.8; }
+.main{
+  flex:1;                   /* żeby main wypełniał wysokość */
+  display:flex;
+  align-items:center;       /* centrowanie pionowe */
+  justify-content:center;   /* centrowanie poziome */
+  padding:16px;
+}
+
+/*Kontener czatu*/
+.chatbot-container{
+  position:relative;
+  width:min(900px, calc(100% - 32px));
+  max-height:70vh;          /* ograniczam wysokość, żeby nie zajmował całego ekranu */
+  margin:0 auto;
+  background:linear-gradient(180deg, var(--panel), #060a14);
+  border:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(6px); /* taki delikatny "frosted glass" */
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;          /* żeby zawartość nie wychodziła poza promienie */
+}
+
+/* Kiedy dodam klasę .docked, to robię miejsce na panel wklejony na dole */
+.chatbot-container.docked{ padding-bottom:96px; }
+
+/*Lista wiadomości*/
+.chatbot-messages{
+  flex:1;                   /* zajmuje całą dostępną wysokość ponad inputem */
+  padding:14px 14px 8px;
+  overflow-y:auto;          /* przewijanie wiadomości jak się nie mieszczą */
+  display:flex;
+  flex-direction:column;    /* pionowa kolumna wiadomości */
+  gap:8px;                  /* odstęp między bąbelkami */
+}
+.message{
+  display:block;
+  max-width:80%;            /* żeby bąbelek nie był zbyt szeroki */
+  padding:10px 12px;
+  border-radius:14px;
+  line-height:1.35;
+  font-size:14px;
+  white-space:pre-wrap;     /* zachowuję łamania linii */
+  word-break:break-word;    /* słowa mogą się łamać, żeby nie wyjeżdżały */
+}
+.message.user{
+  background:linear-gradient(180deg, var(--user-bubble), var(--accent-2));
+  color:#fff;
+  align-self:flex-end;      /* bąbelek użytkownika po prawej */
+  border-top-right-radius:4px;
+}
+.message.bot{
+  background:var(--bot-bubble);
+  color:var(--text);
+  align-self:flex-start;    /* bąbelek bota po lewej */
+  border-top-left-radius:4px;
+  border:1px solid rgba(255,255,255,.05);
+}
+
+/* Prosty wskaźnik pisania (3 kropki) */
+.typing{
+  width:44px;height:16px;display:flex;gap:6px;align-items:center;
+  padding:10px 12px;background:var(--bot-bubble);
+  border-radius:14px;border-top-left-radius:4px;
+  border:1px solid rgba(255,255,255,.05);
+}
+.typing>span{
+  width:6px;height:6px;border-radius:50%;background:var(--muted);
+  animation:blink 1.4s infinite ease-in-out;
+}
+.typing>span:nth-child(2){ animation-delay:.15s; }
+.typing>span:nth-child(3){ animation-delay:.3s; }
+@keyframes blink{ 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+/*Panel wejściowy (input + przyciski)*/
+.chatbot-input{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:rgba(255,255,255,.02);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.chatbot-input input[type="text"]{
+  flex:1;
+  padding:12px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  color:var(--text);
+  border-radius:12px;
+  outline:none;
+}
+.chatbot-input input[type="text"]::placeholder{ color:var(--muted); }
+
+/* W trybie .docked panel wejściowy jest przypięty na dole i wycentrowany */
+.chatbot-container.docked .chatbot-input{
+  position:fixed;
+  left:50%;
+  bottom:16px;
+  transform:translateX(-50%);
+  width:min(900px, calc(100% - 32px));
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  z-index:1000;                 /* nad treścią, żeby nie zniknął */
+  backdrop-filter:blur(6px);
+}
+
+/*Przyciski (wspólny styl)*/
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+  color:var(--text);
+  border-radius:12px;
+  cursor:pointer;
+  user-select:none;
+  font-weight:600;
+  line-height:1;
+  transition:transform .06s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+}
+.btn:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.14); }
+.btn:active{ transform:translateY(1px); }
+.btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+/* Wersja główna przycisku (np. Send) z ładnym gradientem */
+.btn-primary{
+  background:linear-gradient(180deg, var(--accent), var(--accent-2));
+  color:#fff; border-color:transparent;
+}
+.btn-primary:hover{ filter:brightness(1.05); }
+
+/* Pomocnicze klasy do inputa plików (ukrywam natywny wygląd) */
+.visually-hidden{
+  position:absolute !important;
+  width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,1px,1px);
+  white-space:nowrap;border:0;
+}
+.file-name{
+  align-self:center;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/*Responsywność (telefony)*/
+@media (max-width:600px){
+  .header h1{ font-size:22px; }
+  .message{ max-width:100%; }     /* na telefonie bąbelki mogą być szersze */
+  .chatbot-container.docked .chatbot-input{
+    width:calc(100% - 16px);
+    bottom:8px;
+  }
+}
+
+.site-footer {
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 20px;
+  color:var(--muted);
+  border-top:  1px solid rgba(255,255,255,.08);
+  background: transparent;
+}
