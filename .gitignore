@@ -1,0 +1,40 @@
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Logs / temp ---
+*.log
+*.tmp
+*.temp
+
+# --- Python / backend ---
+.venv/
+**/.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+backend/.env
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/temp_*
+
+# --- Node / frontend ---
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.env.*.local
+
+# --- Native/binary (подстрахуемся) ---
+*.dll
+*.lib
+*.pdb
+*.so
+*.dylib
+*.bin
+*.pt
+*.pth
+*.onnx
+*.safetensors
