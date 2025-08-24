@@ -3,6 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo ">>> USING amplify.yml FROM REPO <<<"
         - npm --version
         - node --version
         - python --version
@@ -12,7 +13,8 @@ frontend:
         - aws --version
     build:
       commands:
-        # 1) Бэкенд: SAM build+deploy (Lambda+API Gateway)
+        # 1) Бэкенд: SAM build+deploy
+        - echo ">>> SAM BUILD & DEPLOY <<<"
         - sam build
         - >
           sam deploy
@@ -27,24 +29,19 @@ frontend:
             CorsOrigin=$CORS_ORIGIN
             OpenAIKey=$OPENAI_API_KEY
             OpenAIModel=$OPENAI_EMBED_MODEL
-
-        # 2) Берём URL API из CloudFormation (в том же регионе)
-        - echo "Fetching ApiUrl from CloudFormation..."
+        # 2) Читаем ApiUrl из CFN
+        - echo ">>> FETCH API URL FROM CLOUDFORMATION <<<"
         - export API_URL=$(aws cloudformation describe-stacks --region $AWS_REGION --stack-name chatbot-backend --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue | [0]" --output text)
         - echo "ApiUrl = $API_URL"
-
-        # 3) Подставляем во фронт
+        # 3) Прокидываем во фронт
         - echo "REACT_APP_API_BASE=$API_URL" > frontend/.env.production
-
         # 4) Сборка фронта
         - npm ci --prefix frontend
         - npm run build --prefix frontend
-
   artifacts:
     baseDirectory: frontend/build
     files:
       - '**/*'
-
   cache:
     paths:
       - frontend/node_modules/**/*
