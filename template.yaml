@@ -23,7 +23,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: chatbot-backend
-      Runtime: python3.11
+      Runtime: python3.10
       Handler: app_lambda.handler
       CodeUri: backend/
       Timeout: 30

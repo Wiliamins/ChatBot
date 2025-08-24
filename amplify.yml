@@ -28,7 +28,7 @@ frontend:
 
         # 2) ЧИТАЕМ ApiUrl из CloudFormation
         - echo "Fetching ApiUrl from CloudFormation..."
-        - export API_URL=$(aws cloudformation describe-stacks --stack-name chatbot-backend --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue | [0]" --output text)
+        - export API_URL=$(aws cloudformation describe-stacks --region $AWS_REGION --stack-name chatbot-backend --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue | [0]" --output text)
         - echo "ApiUrl = $API_URL"
 
         # 3) ПОДСТАВЛЯЕМ во фронт .env.production
