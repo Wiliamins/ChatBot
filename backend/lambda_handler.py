@@ -1,8 +1,7 @@
-# backend/lambda_handler.py
-# Обёртка для AWS Lambda. Импортирует твой FastAPI-приложение из app.py и
-# превращает его в Lambda handler через Mangum.
+﻿from mangum import Mangum
+# Импортируем FastAPI-приложение из твоего backend/app.py
+# Важно: в app.py должен быть app = FastAPI()
+from app import app
 
-from mangum import Mangum
-from app import app  # <-- здесь важно: в app.py должен быть app = FastAPI()
-
+# Lambda handler для AWS (API Gateway -> Lambda -> FastAPI)
 handler = Mangum(app)
