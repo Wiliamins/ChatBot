@@ -10,10 +10,9 @@ from qdrant_utils import QdrantManager
 
 app = FastAPI()
 
-# Разрешаем фронту localhost:3000 (поменяй при деплое)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[os.getenv("CORS_ORIGIN", "*"), "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,7 +20,7 @@ app.add_middleware(
 
 qdrant = QdrantManager()
 
-# Держим имя последнего источника ("cms" или имя файла)
+
 LATEST_SOURCE: str | None = None
 
 
@@ -34,12 +33,7 @@ class CMSContent(BaseModel):
 
 
 def candidate_keys(user_query: str) -> list[str]:
-    """
-    Маппим вопрос пользователя на канонические ключи.
-    Примеры:
-      'name' -> ['project name', 'project codename']
-      'project codename' -> ['project codename', 'project name']
-    """
+    
     qn = normalize_key(user_query)
     if qn in ("name", "project name"):
         return ["project name", "project codename"]
@@ -113,12 +107,7 @@ async def upload_cms(cms: CMSContent):
 
 @app.post("/query")
 async def query(query: Query):
-    """
-    Строгий режим:
-      1) точный поиск по q_norm ТОЛЬКО в последнем источнике (LATEST_SOURCE)
-      2) если не найдено — "No relevant information found."
-    Никаких глобальных/семантических фолбэков.
-    """
+    
     try:
         if not LATEST_SOURCE:
             return {"answer": "No relevant information found."}

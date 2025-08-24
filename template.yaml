@@ -23,8 +23,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: chatbot-backend
-      Runtime: python3.10
-      Handler: app_lambda.handler
+      Runtime: python3.10            
+      Handler: lambda_handler.handler
       CodeUri: backend/
       Timeout: 30
       MemorySize: 1024
@@ -48,5 +48,5 @@ Resources:
 
 Outputs:
   ApiUrl:
-    Description: "HTTP API base URL"
+    Description: HTTP API base URL
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"

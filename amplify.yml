@@ -7,10 +7,12 @@ frontend:
         - node --version
         - python --version
         - pip install --upgrade pip
-        - pip install awscli aws-sam-cli
+        - pip install awscli aws-sam-cli        # ВАЖНО: sam и aws в билде
+        - sam --version
+        - aws --version
     build:
       commands:
-        # 1) ДЕПЛОЙ БЭКЕНДА (SAM)
+        # 1) Деплой бэкенда (SAM)
         - sam build
         - >
           sam deploy
@@ -26,15 +28,15 @@ frontend:
             OpenAIKey=$OPENAI_API_KEY
             OpenAIModel=$OPENAI_EMBED_MODEL
 
-        # 2) ЧИТАЕМ ApiUrl из CloudFormation
+        # 2) Берём ApiUrl из CloudFormation (тот же регион)
         - echo "Fetching ApiUrl from CloudFormation..."
         - export API_URL=$(aws cloudformation describe-stacks --region $AWS_REGION --stack-name chatbot-backend --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue | [0]" --output text)
         - echo "ApiUrl = $API_URL"
 
-        # 3) ПОДСТАВЛЯЕМ во фронт .env.production
+        # 3) Прокидываем URL бэка во фронт
         - echo "REACT_APP_API_BASE=$API_URL" > frontend/.env.production
 
-        # 4) СБОРКА ФРОНТА
+        # 4) Сборка фронта
         - npm ci --prefix frontend
         - npm run build --prefix frontend
 
