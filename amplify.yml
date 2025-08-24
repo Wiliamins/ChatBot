@@ -1,0 +1,48 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm --version
+        - node --version
+        - python --version
+        - pip install --upgrade pip
+        - pip install awscli aws-sam-cli
+    build:
+      commands:
+        # 1) ДЕПЛОЙ БЭКЕНДА (SAM)
+        - sam build
+        - >
+          sam deploy
+          --stack-name chatbot-backend
+          --no-confirm-changeset
+          --no-fail-on-empty-changeset
+          --resolve-s3
+          --capabilities CAPABILITY_IAM
+          --parameter-overrides
+            QdrantUrl=$QDRANT_URL
+            QdrantApiKey=$QDRANT_API_KEY
+            CorsOrigin=$CORS_ORIGIN
+            OpenAIKey=$OPENAI_API_KEY
+            OpenAIModel=$OPENAI_EMBED_MODEL
+
+        # 2) ЧИТАЕМ ApiUrl из CloudFormation
+        - echo "Fetching ApiUrl from CloudFormation..."
+        - export API_URL=$(aws cloudformation describe-stacks --stack-name chatbot-backend --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue | [0]" --output text)
+        - echo "ApiUrl = $API_URL"
+
+        # 3) ПОДСТАВЛЯЕМ во фронт .env.production
+        - echo "REACT_APP_API_BASE=$API_URL" > frontend/.env.production
+
+        # 4) СБОРКА ФРОНТА
+        - npm ci --prefix frontend
+        - npm run build --prefix frontend
+
+  artifacts:
+    baseDirectory: frontend/build
+    files:
+      - '**/*'
+
+  cache:
+    paths:
+      - frontend/node_modules/**/*

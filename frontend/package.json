@@ -36,5 +36,16 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+    
   }
+  {
+  "homepage": "https://Wiliamins.github.io/ChatBot",
+  "scripts": {
+    "build": "react-scripts build",
+    "postbuild": "node -e \"require('fs').copyFileSync('build/index.html','build/404.html')\""
+  }
+}
+
+
+  
 }
