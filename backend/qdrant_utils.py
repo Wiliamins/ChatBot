@@ -8,7 +8,7 @@ from qdrant_client.models import (
 
 EMBED_DIM = 384
 
-COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "documents")
+COLLECTION_NAME = os.getenv("QDRANT_COLLECTION", "chatbot")
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
@@ -22,10 +22,9 @@ class QdrantManager:
             timeout=30.0,
         )
         self._ensure_collection()
-        self._ensure_payload_indices()  # индексы для q_norm и др.
+        self._ensure_payload_indices()
 
     def _ensure_collection(self):
-        # Создаём коллекцию, если её нет. НИЧЕГО не удаляем.
         try:
             self.client.get_collection(self.collection_name)
         except Exception:
@@ -54,10 +53,9 @@ class QdrantManager:
                 msg = str(e).lower()
                 if "already exists" in msg or "exists" in msg:
                     continue
-                print(f"[Qdrant] Index create warning for '{field_name}': {e}")
+                print(f"[QDRANT] Index warning '{field_name}': {e}")
 
     def insert_vector(self, point_id: str, vector, payload: dict):
-        # добавляем timestamp (секунды) — достаточно для стабильной версии
         payload = dict(payload)
         payload.setdefault("ingested_at", int(time()))
         self.client.upsert(
@@ -70,7 +68,6 @@ class QdrantManager:
         )
 
     def search_exact_key(self, q_norm_value: str, source_filter: str | None = None, limit: int = 1):
-        """Точный поиск по q_norm (+ опционально по конкретному source)."""
         must = [FieldCondition(key="q_norm", match=MatchValue(value=q_norm_value))]
         if source_filter:
             must.append(FieldCondition(key="source", match=MatchValue(value=source_filter)))

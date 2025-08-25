@@ -6,3 +6,6 @@ pdfminer.six
 python-docx
 pandas
 python-multipart
+mangum
+starlette
+httpx
