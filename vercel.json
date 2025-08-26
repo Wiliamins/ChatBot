@@ -1,7 +1,7 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "functions": {
-        "api/imdex.py": {
+        "api/**/*.py": {
             "runtime": "python3.11",
             "memory": 1024,
             "maxDuration": 10,
