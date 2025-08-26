@@ -10,13 +10,14 @@ from qdrant_utils import QdrantManager
 
 app = FastAPI(root_path="/api")
 
+ALLOWED = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 @app.get("/api/health")
 def health():
     return {"ok": True}
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[o.strip() for o in ALLOWED if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

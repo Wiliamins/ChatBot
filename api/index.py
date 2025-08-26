@@ -1,7 +1,7 @@
 import sys, pathlib
-
+import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
-sys.path.append(str(ROOT / "backend"))
+sys.path.append(str(ROOT))
 
-from app import app
+from backend.app import app
