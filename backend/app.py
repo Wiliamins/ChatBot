@@ -3,13 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import uuid
-
+from pathlib import Path
 from document_parser import parse_file, parse_cms_content, normalize_key
 from embeddings import generate_embedding
 from qdrant_utils import QdrantManager
 
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
+@app.get("/api/health")
+def health():
+    return {"ok": True}
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,7 +48,8 @@ def candidate_keys(user_query: str) -> list[str]:
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    tmp_path = f"temp_{file.filename}"
+    safe_name = Path(file.filename).name
+    tmp_path = f"/tmp/temp_{safe_name}"
     with open(tmp_path, "wb") as f:
         f.write(await file.read())
 
