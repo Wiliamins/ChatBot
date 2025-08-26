@@ -10,3 +10,4 @@ python-multipart
 mangum
 starlette
 httpx
+react-scripts
