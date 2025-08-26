@@ -1,0 +1,12 @@
+fastapi
+pydantic
+qdrant-client
+uvicorn
+sentence-transformers
+pdfminer.six
+python-docx
+pandas
+python-multipart
+mangum
+starlette
+httpx

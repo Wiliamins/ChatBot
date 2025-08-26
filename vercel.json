@@ -1,0 +1,18 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "functions": {
+        "api/imdex.py": {
+            "runtime": "python3.11",
+            "memory": 1024,
+            "maxDuration": 10,
+            "includeFiles": "backend/**"
+        }
+    },
+    "buildCommand": "cd frontend && npm ci && npm run build",
+    "outputDirectory": "frontend/build",
+    "rewrites": [
+        {"source": "/api/(.*)", "destination": "/api/index.py" },
+        {"source": "/(.*)", "destination": "/index.html" }
+    ]
+    
+}
