@@ -1,16 +1,15 @@
 {
   "functions": {
-    "api/**/*.py": {
+    "api/*.py": {
       "runtime": "python3.11",
       "memory": 1024,
-      "maxDuration": 10,
-      "includeFiles": "backend/**"
+      "maxDuration": 10
     }
   },
   "buildCommand": "cd frontend && npm ci || npm i && npm run build",
   "outputDirectory": "frontend/build",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/api/(.*)", "destination": "/api/app.py" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
