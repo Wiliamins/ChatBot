@@ -1,6 +1,5 @@
-# api/app.py — минимальный тест, что python3.11-функции реально работают
+# api/app.py — минимальный тест, что runtime=python3.11 используется
 from fastapi import FastAPI
-
 app = FastAPI()
 
 @app.get("/api/health")
