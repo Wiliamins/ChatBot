@@ -1,7 +1,10 @@
-# api/app.py (если тут держишь сам app) ИЛИ backend/app.py (если импортируешь его)
 from fastapi import FastAPI
-app = FastAPI(root_path="/api")  # важно!
+app = FastAPI(root_path="/api")
 
-@app.get("/health")              # без /api в декораторе
+@app.get("/health")  # без префикса /api!
 def health():
     return {"ok": True}
+
+@app.get("/")        # чтобы /api/ тоже отвечал
+def root():
+    return {"status": "alive"}
