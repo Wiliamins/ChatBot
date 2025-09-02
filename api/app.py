@@ -1,22 +1,33 @@
+# api/app.py
 from fastapi import FastAPI
 from pathlib import Path
-import sys
+import sys, os, traceback
 
+app = FastAPI()  # НЕ ставим root_path здесь; он внутри backend/app.py
+
+# даём питону видеть пакет backend из корня репо
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))   # даём видеть пакет backend
+sys.path.insert(0, str(ROOT))
 
-# ВРЕМЕННЫЙ безопасный импорт с отладкой
-app = FastAPI()
+boot_error = None
 
 try:
-    from backend.app import app as fastapi_app  # в backend/app.py: app = FastAPI(root_path="/api")
-    app = fastapi_app
+    # ВАЖНО: в backend/app.py должно быть app = FastAPI(...), см. п.3
+    from backend.app import app as fastapi_app
+    app = fastapi_app  # подменяем на реальное приложение
 except Exception as e:
-    import traceback
-    @app.get("/__boot")
-    def boot():
-        return {"import_error": str(e), "trace": traceback.format_exc()}
+    boot_error = e
+    tb = traceback.format_exc()
 
-@app.get("/health")  # на всякий случай базовый health
-def health():
-    return {"ok": True}
+    @app.get("/__boot")
+    def __boot():
+        # Показываем безопасно, чтобы понять, почему падает импорт
+        return {
+            "import_error": str(boot_error),
+            "trace": tb.splitlines()[-25:]  # последние линии стека
+        }
+
+# Бэкап-эндпоинт на случай падения
+@app.get("/health")
+def _health():
+    return {"ok": True, "backend_loaded": boot_error is None}

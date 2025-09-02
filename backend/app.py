@@ -111,6 +111,10 @@ async def upload_cms(cms: CMSContent):
         return {"error": str(e)}
 
 
+@app.get("/health")
+def health():
+    return {"ok": True}
+
 @app.post("/query")
 async def query(query: Query):
     
