@@ -115,6 +115,11 @@ async def upload_cms(cms: CMSContent):
 def health():
     return {"ok": True}
 
+@app.get("/env-check")
+def env_check():
+    names = ["QDRANT_URL", "QDRANT_API_KEY", "OPENAI_API_KEY", "ALLOWED_ORIGINS"]
+    return {n: bool(os.getenv(n)) for n in names}
+
 @app.post("/query")
 async def query(query: Query):
     
