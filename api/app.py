@@ -1,10 +1,6 @@
 from fastapi import FastAPI
-app = FastAPI(root_path="/api")
+app = FastAPI()
 
-@app.get("/health")  # без префикса /api!
+@app.get("/api/health")
 def health():
     return {"ok": True}
-
-@app.get("/")        # чтобы /api/ тоже отвечал
-def root():
-    return {"status": "alive"}
