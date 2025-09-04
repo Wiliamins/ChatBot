@@ -6,4 +6,3 @@ pdfminer.six
 python-docx
 pandas
 python-multipart
-react-scripts
