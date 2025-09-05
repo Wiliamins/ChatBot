@@ -1,0 +1,7 @@
+{
+    "buildCommand": "cd frontend && npm ci || npm i && npm run build",
+    "outputDirectory": "frontend/build",
+    "rewrites": [
+        {"source": "/api/(.*)", "destination": "railwayapp"}
+    ]
+}
